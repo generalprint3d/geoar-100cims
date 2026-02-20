@@ -1,1 +1,115 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GeoAR - La Mola de Lord</title>
+
+<style>
+  body, html {
+    margin: 0;
+    overflow: hidden;
+    background: black;
+  }
+
+  #startCamera {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    padding: 10px 15px;
+    font-size: 16px;
+  }
+
+  #camera {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    top: 0;
+    left: 0;
+  }
+
+  #overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    opacity: 0.5;
+    touch-action: none;
+  }
+
+  #slider {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    z-index: 1000;
+  }
+</style>
+</head>
+
+<body>
+
+<button id="startCamera">Iniciar càmera</button>
+
+<video id="camera" autoplay playsinline></video>
 <img id="overlay" src="mola_lord.png">
+<input id="slider" type="range" min="0" max="100" value="50">
+
+<script>
+// ---------- activar càmera ----------
+const video = document.getElementById("camera");
+const btn = document.getElementById("startCamera");
+
+btn.addEventListener("click", () => {
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+    .then(stream => { 
+      video.srcObject = stream; 
+      btn.style.display = "none"; // amagar botó
+    })
+    .catch(err => { 
+      alert("No s'ha pogut activar la càmera: " + err); 
+    });
+});
+
+// ---------- transparència ----------
+const overlay = document.getElementById("overlay");
+document.getElementById("slider").addEventListener("input", e => {
+  overlay.style.opacity = e.target.value / 100;
+});
+
+// ---------- gestos per moure i fer zoom ----------
+let scale = 1;
+let posX = 0;
+let posY = 0;
+let lastDist = null;
+
+overlay.addEventListener("touchmove", e => {
+  e.preventDefault();
+
+  if (e.touches.length === 1) {
+    const touch = e.touches[0];
+    posX += touch.movementX || 0;
+    posY += touch.movementY || 0;
+  }
+
+  if (e.touches.length === 2) {
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if (lastDist) scale *= dist / lastDist;
+    lastDist = dist;
+  }
+
+  overlay.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+});
+
+overlay.addEventListener("touchend", () => {
+  lastDist = null;
+});
+</script>
+
+</body>
+</html>
