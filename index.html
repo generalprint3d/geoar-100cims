@@ -84,7 +84,7 @@ navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
 var map = L.map('map', {
   zoomControl: true,
   attributionControl: false
-}).setView([42.20, 2.20], 11);
+}).setView([41.8, 1.5], 8); // vista general Catalunya
 
 // 🌍 WMS com a imatge única (MOLT més fiable amb Instamaps)
 var wmsLayer = L.imageOverlay.wms(
@@ -97,7 +97,10 @@ var wmsLayer = L.imageOverlay.wms(
     opacity: 0.7
   }
 ).addTo(map);
-
+// ⏳ quan el WMS carregui, reajustem vista
+setTimeout(function() {
+  map.fitWorld();
+}, 1500);
 // 🎚️ slider
 document.getElementById("opacity").addEventListener("input", function(e) {
   wmsLayer.setOpacity(e.target.value);
