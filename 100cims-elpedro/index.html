@@ -69,6 +69,8 @@ Transparència:
 
 <script>
 
+<script>
+
 // ===============================
 // 📷 ACTIVAR CÀMERA
 // ===============================
@@ -93,71 +95,47 @@ var map = L.map('map', {
 });
 
 // ===============================
-// 🧭 CAPES BASE
+// 🧭 CAPES BASE (WMTS / XYZ)
 // ===============================
 
-// Topogràfic (default)
-var icgcTopo = L.tileLayer.wms(
-  "https://geoserveis.icgc.cat/icc_mapesmultibase/wms/service?",
-  {
-    layers: "topo",
-    format: "image/png",
-    transparent: false,
-    opacity: 0.7
-  }
-).addTo(map);
-
-// Geològic
-var icgcGeo = L.tileLayer.wms(
-  "https://geoserveis.icgc.cat/geologia/wms/service?",
-  {
-    layers: "geologia250m",
-    format: "image/png",
-    transparent: false,
-    opacity: 0.7
-  }
-);
-
-// Vol americà
-var icgc1956 = L.tileLayer.wms(
-  "https://geoserveis.icgc.cat/icc_ortohistorica/wms/service?",
-  {
-    layers: "orto1956",
-    format: "image/jpeg",
-    transparent: false,
-    opacity: 0.7
-  }
-);
-
-// OSM opcional
+// ✅ OSM (fallback segur)
 var osm = L.tileLayer(
   "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  { opacity: 0.7 }
+).addTo(map);
+
+// ⚠️ ICGC topo (WMTS via XYZ proxy)
+var icgcTopo = L.tileLayer(
+  "https://geoserveis.icgc.cat/icc_mapesmultibase/noutm/wmts/topo/GRID3857/{z}/{x}/{y}.png",
+  { opacity: 0.7 }
+);
+
+// Ortofoto històrica
+var icgc1956 = L.tileLayer(
+  "https://geoserveis.icgc.cat/icc_ortohistorica/wmts/orto1956/GRID3857/{z}/{x}/{y}.jpeg",
   { opacity: 0.7 }
 );
 
 // selector
 L.control.layers({
   "ICGC Topogràfic": icgcTopo,
-  "ICGC Geològic": icgcGeo,
-  "Vol Americà 1956-57": icgc1956,
+  "Vol americà 1956": icgc1956,
   "OpenStreetMap": osm
 }).addTo(map);
 
 // ===============================
-// 🎚️ SLIDER OPACITAT
+// 🎚️ SLIDER
 // ===============================
 
 document.getElementById("opacity").addEventListener("input", e => {
   const val = e.target.value;
-
-  icgcTopo.setOpacity(val);
-  icgcGeo.setOpacity(val);
-  icgc1956.setOpacity(val);
   osm.setOpacity(val);
+  icgcTopo.setOpacity(val);
+  icgc1956.setOpacity(val);
 });
 
 // ===============================
-// 📍 KML (CANVIA PER CADA CIM)
+// 📍 KML
 // ===============================
 
 const KML_FILE = "01_ElPedro_4000m.kml";
@@ -169,6 +147,3 @@ omnivore.kml(KML_FILE)
   .addTo(map);
 
 </script>
-
-</body>
-</html>
