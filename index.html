@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8" />
-<title>GeoAR Test - OSM</title>
+<title>GeoAR Multimapa - OSM</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
@@ -50,6 +50,11 @@ html, body {
   color: white;
   font-family: sans-serif;
 }
+
+#mapSelector {
+  margin-bottom: 10px;
+  width: 100%;
+}
 </style>
 </head>
 
@@ -59,8 +64,11 @@ html, body {
 <div id="map"></div>
 
 <div id="controls">
-Transparència mapa:
-<input type="range" id="opacity" min="0" max="1" step="0.05" value="0.7">
+  Selecciona mapa:
+  <select id="mapSelector"></select>
+  <br><br>
+  Transparència mapa base:
+  <input type="range" id="opacity" min="0" max="1" step="0.05" value="0.7">
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -89,9 +97,6 @@ var map = L.map('map', {
   inertiaMaxSpeed: 1500
 }).setView([42.13, 1.78], 13);
 
-// =======================
-// 🌍 OpenStreetMap (IMPORTANT)
-// =======================
 var osmLayer = L.tileLayer(
   'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
   {
@@ -101,27 +106,104 @@ var osmLayer = L.tileLayer(
 ).addTo(map);
 
 // =======================
-// 🎯 carregar KML i centrar
+// 🎯 Fitxers KML
 // =======================
-const KML_FILE = '01_ElPedro_4000m.kml';
+const kmlFiles = [
+  "DATA/01_Bastiments_2km.kml",
+  "DATA/01_Bellmunt_2500m.kml",
+  "DATA/01_Besiberri-Nord_2500m.kml",
+  "DATA/01_Cabrera_2500m.kml",
+  "DATA/01_CapBoumort_4000m.kml",
+  "DATA/01_CapUrdet_4000m.kml",
+  "DATA/01_Cap_Gallina_Pelada-2500.kml",
+  "DATA/01_Caro_2500m.kml",
+  "DATA/01_Cogullo-dEstela_1250m.kml",
+  "DATA/01_Comanegra_2500.kml",
+  "DATA/01_ElBalandrau_3000m-radi.kml",
+  "DATA/01_ElFarell_4000m.kml",
+  "DATA/01_ElMont_2500.kml",
+  "DATA/01_ElNegrell_5000m.kml",
+  "DATA/01_ElPedro_4000m.kml",
+  "DATA/01_ElsEncantats-1km.kml",
+  "DATA/01_ElTaga_4175.kml",
+  "DATA/01_Envolupant_14x14km_CapDeCreus.kml",
+  "DATA/01_LoCoscollet_4000m.kml",
+  "DATA/01_MolaLord_2500m.kml",
+  "DATA/01_OllaDeNuria_4164m.kml",
+  "DATA/01_Pedraforca_2km.kml",
+  "DATA/01_PuigBassegoda-2088m.kml",
+  "DATA/01_TucMolieres-6000m.kml"
+];
 
-omnivore.kml(KML_FILE)
-.on('ready', function() {
-    var kmlLayer = this;
-    map.addLayer(kmlLayer);
-	map.fitBounds(kmlLayer.getBounds());
-	map.setZoom(Math.min(map.getZoom(), 17));
-})
-.on('error', function(e){
-    console.error("Error carregant KML", e);
+// =======================
+// 🔀 Generar selector amb noms nets
+// =======================
+const mapSelector = document.getElementById("mapSelector");
+
+kmlFiles.forEach(file => {
+  let name = file.split("/").pop();        // Nom del fitxer
+  name = name.replace(/^01_/, "");         // Treure prefix 01_
+  name = name.replace(/_/g, " ");          // Substituir _ per espai
+  name = name.replace(/1/g, " ");          // Substituir 1 per espai si vols
+  name = name.replace(/\s+/g, " ").trim(); // neteja múltiples espais
+
+  const opt = document.createElement("option");
+  opt.value = file;
+  opt.textContent = name;
+  mapSelector.appendChild(opt);
 });
 
 // =======================
-// 🎚️ slider transparència
+// 🎯 Funció per carregar KML amb estil
 // =======================
-document.getElementById("opacity").addEventListener("input", function(e) {
+let currentKMLLayer = null;
+
+function loadKML(kmlFile) {
+  if(currentKMLLayer) map.removeLayer(currentKMLLayer);
+
+  omnivore.kml(kmlFile)
+  .on('ready', function() {
+    currentKMLLayer = this;
+
+    currentKMLLayer.eachLayer(function(layer){
+      if(layer.setStyle){
+        layer.setStyle({
+          fill: false,
+          fillOpacity: 0,
+          color: "#FFAA00",
+          weight: 3,
+          opacity: 0.8
+        });
+      }
+    });
+
+    map.addLayer(currentKMLLayer);
+    map.fitBounds(currentKMLLayer.getBounds());
+    map.setZoom(Math.min(map.getZoom(), 17));
+  })
+  .on('error', function(e){
+    console.error("Error carregant KML", e);
+  });
+}
+
+// =======================
+// 🎚️ Slider transparència
+// =======================
+document.getElementById("opacity").addEventListener("input", function(e){
   osmLayer.setOpacity(e.target.value);
 });
+
+// =======================
+// Selector de mapa
+// =======================
+mapSelector.addEventListener("change", function(e){
+  loadKML(e.target.value);
+});
+
+// =======================
+// Carregar primer mapa per defecte
+// =======================
+loadKML(mapSelector.value);
 </script>
 
 </body>
