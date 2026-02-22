@@ -104,16 +104,24 @@ var osm = L.tileLayer(
   { opacity: 0.7 }
 ).addTo(map);
 
-// ⚠️ ICGC topo (WMTS via XYZ proxy)
+// 🗺️ ICGC Topogràfic (multibase correcte)
 var icgcTopo = L.tileLayer(
   "https://geoserveis.icgc.cat/icc_mapesmultibase/noutm/wmts/topo/GRID3857/{z}/{x}/{y}.png",
-  { opacity: 0.7 }
+  {
+    opacity: 0.7,
+    maxZoom: 19,
+    minZoom: 5
+  }
 );
 
-// Ortofoto històrica
+// 🛩️ Vol americà 1956
 var icgc1956 = L.tileLayer(
   "https://geoserveis.icgc.cat/icc_ortohistorica/wmts/orto1956/GRID3857/{z}/{x}/{y}.jpeg",
-  { opacity: 0.7 }
+  {
+    opacity: 0.7,
+    maxZoom: 19,
+    minZoom: 5
+  }
 );
 
 // selector
