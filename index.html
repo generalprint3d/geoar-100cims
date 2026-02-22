@@ -65,7 +65,32 @@ html, body {
 
 <div id="controls">
   Selecciona mapa:
-  <select id="mapSelector"></select>
+  <select id="mapSelector">
+    <option value="DATA/01_Bastiments_2km.kml">01_Bastiments_2km</option> <!-- Nom al selector: "Bastiments 2km" -->
+    <option value="DATA/01_Bellmunt_2500m.kml">01_Bellmunt_2500m</option> <!-- Nom al selector: "Bellmunt 2500m" -->
+    <option value="DATA/01_Besiberri-Nord_2500m.kml">01_Besiberri-Nord_2500m</option> <!-- Nom al selector: "Besiberri Nord 2500m" -->
+    <option value="DATA/01_Cabrera_2500m.kml">01_Cabrera_2500m</option> <!-- Nom al selector: "Cabrera 2500m" -->
+    <option value="DATA/01_CapBoumort_4000m.kml">01_CapBoumort_4000m</option> <!-- Nom al selector: "Cap Boumort 4000m" -->
+    <option value="DATA/01_CapUrdet_4000m.kml">01_CapUrdet_4000m</option> <!-- Nom al selector: "Cap Urdet 4000m" -->
+    <option value="DATA/01_Cap_Gallina_Pelada-2500.kml">01_Cap_Gallina_Pelada-2500</option> <!-- Nom al selector: "Cap Gallina Pelada 2500" -->
+    <option value="DATA/01_Caro_2500m.kml">01_Caro_2500m</option> <!-- Nom al selector: "Caro 2500m" -->
+    <option value="DATA/01_Cogullo-dEstela_1250m.kml">01_Cogullo-dEstela_1250m</option> <!-- Nom al selector: "Cogullo d'Estela 1250m" -->
+    <option value="DATA/01_Comanegra_2500.kml">01_Comanegra_2500</option> <!-- Nom al selector: "Comanegra 2500" -->
+    <option value="DATA/01_ElBalandrau_3000m-radi.kml">01_ElBalandrau_3000m-radi</option> <!-- Nom al selector: "El Balandrau 3000m radi" -->
+    <option value="DATA/01_ElFarell_4000m.kml">01_ElFarell_4000m</option> <!-- Nom al selector: "El Farell 4000m" -->
+    <option value="DATA/01_ElMont_2500.kml">01_ElMont_2500</option> <!-- Nom al selector: "El Mont 2500" -->
+    <option value="DATA/01_ElNegrell_5000m.kml">01_ElNegrell_5000m</option> <!-- Nom al selector: "El Negrell 5000m" -->
+    <option value="DATA/01_ElPedro_4000m.kml">01_ElPedro_4000m</option> <!-- Nom al selector: "El Pedro 4000m" -->
+    <option value="DATA/01_ElsEncantats-1km.kml">01_ElsEncantats-1km</option> <!-- Nom al selector: "Els Encantats 1km" -->
+    <option value="DATA/01_ElTaga_4175.kml">01_ElTaga_4175</option> <!-- Nom al selector: "El Taga 4175" -->
+    <option value="DATA/01_Envolupant_14x14km_CapDeCreus.kml">01_Envolupant_14x14km_CapDeCreus</option> <!-- Nom al selector: "Cap de Creus 14x14km" -->
+    <option value="DATA/01_LoCoscollet_4000m.kml">01_LoCoscollet_4000m</option> <!-- Nom al selector: "Lo Coscollet 4000m" -->
+    <option value="DATA/01_MolaLord_2500m.kml">01_MolaLord_2500m</option> <!-- Nom al selector: "Mola Lord 2500m" -->
+    <option value="DATA/01_OllaDeNuria_4164m.kml">01_OllaDeNuria_4164m</option> <!-- Nom al selector: "Olla de Núria 4164m" -->
+    <option value="DATA/01_Pedraforca_2km.kml">01_Pedraforca_2km</option> <!-- Nom al selector: "Pedraforca 2km" -->
+    <option value="DATA/01_PuigBassegoda-2088m.kml">01_PuigBassegoda-2088m</option> <!-- Nom al selector: "Puig Bassegoda 2088m" -->
+    <option value="DATA/01_TucMolieres-6000m.kml">01_TucMolieres-6000m</option> <!-- Nom al selector: "Tuc Molieres 6000m" -->
+  </select>
   <br><br>
   Transparència mapa base:
   <input type="range" id="opacity" min="0" max="1" step="0.05" value="0.7">
@@ -89,121 +114,69 @@ navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
 // =======================
 // 🗺️ mapa base
 // =======================
-var map = L.map('map', {
-  zoomControl: true,
-  attributionControl: false,
-  inertia: true,
-  inertiaDeceleration: 3000,
-  inertiaMaxSpeed: 1500
-}).setView([42.13, 1.78], 13);
+var map = L.map('map', { zoomControl:true, attributionControl:false, inertia:true, inertiaDeceleration:3000, inertiaMaxSpeed:1500 }).setView([42.13,1.78],13);
 
-var osmLayer = L.tileLayer(
-  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-  {
-    maxZoom: 19,
-    opacity: 0.7
-  }
-).addTo(map);
+var osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,opacity:0.7}).addTo(map);
 
 // =======================
-// 🎯 Fitxers KML
-// =======================
-const kmlFiles = [
-  "DATA/01_Bastiments_2km.kml",
-  "DATA/01_Bellmunt_2500m.kml",
-  "DATA/01_Besiberri-Nord_2500m.kml",
-  "DATA/01_Cabrera_2500m.kml",
-  "DATA/01_CapBoumort_4000m.kml",
-  "DATA/01_CapUrdet_4000m.kml",
-  "DATA/01_Cap_Gallina_Pelada-2500.kml",
-  "DATA/01_Caro_2500m.kml",
-  "DATA/01_Cogullo-dEstela_1250m.kml",
-  "DATA/01_Comanegra_2500.kml",
-  "DATA/01_ElBalandrau_3000m-radi.kml",
-  "DATA/01_ElFarell_4000m.kml",
-  "DATA/01_ElMont_2500.kml",
-  "DATA/01_ElNegrell_5000m.kml",
-  "DATA/01_ElPedro_4000m.kml",
-  "DATA/01_ElsEncantats-1km.kml",
-  "DATA/01_ElTaga_4175.kml",
-  "DATA/01_Envolupant_14x14km_CapDeCreus.kml",
-  "DATA/01_LoCoscollet_4000m.kml",
-  "DATA/01_MolaLord_2500m.kml",
-  "DATA/01_OllaDeNuria_4164m.kml",
-  "DATA/01_Pedraforca_2km.kml",
-  "DATA/01_PuigBassegoda-2088m.kml",
-  "DATA/01_TucMolieres-6000m.kml"
-];
-
-// =======================
-// 🔀 Generar selector amb noms nets
-// =======================
-const mapSelector = document.getElementById("mapSelector");
-
-kmlFiles.forEach(file => {
-  let name = file.split("/").pop();        // Nom del fitxer
-  name = name.replace(/^01_/, "");         // Treure prefix 01_
-  name = name.replace(/_/g, " ");          // Substituir _ per espai
-  name = name.replace(/1/g, " ");          // Substituir 1 per espai si vols
-  name = name.replace(/\s+/g, " ").trim(); // neteja múltiples espais
-
-  const opt = document.createElement("option");
-  opt.value = file;
-  opt.textContent = name;
-  mapSelector.appendChild(opt);
-});
-
-// =======================
-// 🎯 Funció per carregar KML amb estil
+// 🎯 Funció per carregar KML amb estil i zoom correcte
 // =======================
 let currentKMLLayer = null;
 
-function loadKML(kmlFile) {
-  if(currentKMLLayer) map.removeLayer(currentKMLLayer);
+function loadKML(kmlFile){
+  if(currentKMLLayer){ map.removeLayer(currentKMLLayer); currentKMLLayer = null; }
 
   omnivore.kml(kmlFile)
-  .on('ready', function() {
+  .on('ready', function(){
     currentKMLLayer = this;
 
     currentKMLLayer.eachLayer(function(layer){
       if(layer.setStyle){
         layer.setStyle({
-          fill: false,
-          fillOpacity: 0,
-          color: "#FFAA00",
-          weight: 3,
-          opacity: 0.8
+          fill:false,
+          fillOpacity:0,
+          color:"#FFAA00",
+          weight:3,
+          opacity:0.8
         });
       }
     });
 
     map.addLayer(currentKMLLayer);
-    map.fitBounds(currentKMLLayer.getBounds());
-    map.setZoom(Math.min(map.getZoom(), 17));
+
+    const bounds = currentKMLLayer.getBounds();
+    if(bounds.isValid()){
+      map.fitBounds(bounds);
+      map.setZoom(Math.min(map.getZoom(),17));
+    }
   })
-  .on('error', function(e){
-    console.error("Error carregant KML", e);
-  });
+  .on('error', function(e){ console.error("Error carregant KML",e); });
 }
 
 // =======================
 // 🎚️ Slider transparència
 // =======================
-document.getElementById("opacity").addEventListener("input", function(e){
-  osmLayer.setOpacity(e.target.value);
-});
+document.getElementById("opacity").addEventListener("input", function(e){ osmLayer.setOpacity(e.target.value); });
 
 // =======================
-// Selector de mapa
+// 🔀 Selector de mapa
 // =======================
-mapSelector.addEventListener("change", function(e){
-  loadKML(e.target.value);
-});
+const mapSelector = document.getElementById("mapSelector");
+mapSelector.addEventListener("change", function(){ loadKML(mapSelector.value); });
 
 // =======================
-// Carregar primer mapa per defecte
+// 🔗 Funció per llegir paràmetre URL
 // =======================
-loadKML(mapSelector.value);
+function getURLParameter(name){ return new URLSearchParams(window.location.search).get(name); }
+
+// =======================
+// Carregar KML inicial (paràmetre URL si existeix)
+const kmlParam = getURLParameter("kml");
+if(kmlParam){
+  const opt = Array.from(mapSelector.options).find(o => o.value === kmlParam);
+  if(opt){ mapSelector.value = opt.value; loadKML(opt.value); }
+  else loadKML(mapSelector.value);
+} else loadKML(mapSelector.value);
 </script>
 
 </body>
