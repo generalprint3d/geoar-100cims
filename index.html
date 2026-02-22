@@ -83,7 +83,10 @@ navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
 // =======================
 var map = L.map('map', {
   zoomControl: true,
-  attributionControl: false
+  attributionControl: false,
+  inertia: true,
+  inertiaDeceleration: 3000,
+  inertiaMaxSpeed: 1500
 }).setView([42.13, 1.78], 13);
 
 // =======================
@@ -100,11 +103,14 @@ var osmLayer = L.tileLayer(
 // =======================
 // 🎯 carregar KML i centrar
 // =======================
-omnivore.kml('01_ElPedro_4000m.kml')
+const KML_FILE = '01_ElPedro_4000m.kml';
+
+omnivore.kml(KML_FILE)
 .on('ready', function() {
     var kmlLayer = this;
     map.addLayer(kmlLayer);
-    map.fitBounds(kmlLayer.getBounds());
+	map.fitBounds(kmlLayer.getBounds());
+	map.setZoom(Math.min(map.getZoom(), 17));
 })
 .on('error', function(e){
     console.error("Error carregant KML", e);
