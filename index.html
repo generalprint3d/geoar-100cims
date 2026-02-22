@@ -2,8 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8" />
-<title>GeoAR 100 Cims</title>
-
+<title>GeoAR Test - OSM</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
@@ -60,7 +59,7 @@ html, body {
 <div id="map"></div>
 
 <div id="controls">
-Transparència:
+Transparència mapa:
 <input type="range" id="opacity" min="0" max="1" step="0.05" value="0.7">
 </div>
 
@@ -68,12 +67,10 @@ Transparència:
 <script src="https://unpkg.com/leaflet-omnivore/leaflet-omnivore.min.js"></script>
 
 <script>
-// ===============================
-// 📷 ACTIVAR CÀMERA
-// ===============================
-navigator.mediaDevices.getUserMedia({
-  video: { facingMode: "environment" }
-})
+// =======================
+// 📷 activar càmera
+// =======================
+navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
 .then(stream => {
   document.getElementById("camera").srcObject = stream;
 })
@@ -81,73 +78,44 @@ navigator.mediaDevices.getUserMedia({
   alert("Error càmera: " + err);
 });
 
-// ===============================
-// 🗺️ MAPA
-// ===============================
+// =======================
+// 🗺️ mapa base
+// =======================
 var map = L.map('map', {
   zoomControl: true,
   attributionControl: false
-});
+}).setView([42.13, 1.78], 13);
 
-// ===============================
-// 🧭 CAPES BASE
-// ===============================
-
-// 🌍 OSM
-var osm = L.tileLayer(
-  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-  { opacity: 0.7 }
-);
-
-// 🗺️ ICGC Topogràfic (DEFECTE)
-var icgcTopo = L.tileLayer(
-  "https://geoserveis.icgc.cat/icc_mapesmultibase/noutm/wmts/topo/GRID3857/{z}/{x}/{y}.png",
+// =======================
+// 🌍 OpenStreetMap (IMPORTANT)
+// =======================
+var osmLayer = L.tileLayer(
+  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
   {
-    opacity: 0.7,
     maxZoom: 19,
-    minZoom: 5
+    opacity: 0.7
   }
 ).addTo(map);
 
-// ✈️ Vol americà 1956
-var icgc1956 = L.tileLayer(
-  "https://geoserveis.icgc.cat/icc_ortohistorica/wmts/orto1956/GRID3857/{z}/{x}/{y}.jpeg",
-  {
-    opacity: 0.7,
-    maxZoom: 19,
-    minZoom: 5
-  }
-);
-
-// selector capes
-L.control.layers({
-  "ICGC Topogràfic": icgcTopo,
-  "Vol americà 1956": icgc1956,
-  "OpenStreetMap": osm
-}).addTo(map);
-
-// ===============================
-// 🎚️ SLIDER TRANSPARÈNCIA
-// ===============================
-document.getElementById("opacity").addEventListener("input", function(e) {
-  const val = e.target.value;
-  osm.setOpacity(val);
-  icgcTopo.setOpacity(val);
-  icgc1956.setOpacity(val);
+// =======================
+// 🎯 carregar KML i centrar
+// =======================
+omnivore.kml('01_ElPedro_4000m.kml')
+.on('ready', function() {
+    var kmlLayer = this;
+    map.addLayer(kmlLayer);
+    map.fitBounds(kmlLayer.getBounds());
+})
+.on('error', function(e){
+    console.error("Error carregant KML", e);
 });
 
-// ===============================
-// 📍 CARREGAR KML
-// ===============================
-const KML_FILE = "01_ElPedro_4000m.kml";
-
-omnivore.kml(KML_FILE)
-  .on('ready', function () {
-    map.fitBounds(this.getBounds());
-    map.setZoom(Math.min(map.getZoom(), 17));
-  })
-  .addTo(map);
-
+// =======================
+// 🎚️ slider transparència
+// =======================
+document.getElementById("opacity").addEventListener("input", function(e) {
+  osmLayer.setOpacity(e.target.value);
+});
 </script>
 
 </body>
